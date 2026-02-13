@@ -18,6 +18,8 @@ def check_temperature(temp_str):
                     "(max 40°C)")
     except ValueError:
         print(f"Error: {temp_str} is not a valid number")
+    except Exception:
+        print("Error: Unknown exception")
 
 
 def main():
