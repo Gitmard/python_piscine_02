@@ -27,7 +27,7 @@ def test_error_types():
         test_zero_division_error()
         test_file_not_found_error()
         test_key_error()
-    except Exception:
+    except (ValueError, ZeroDivisionError, FileNotFoundError, KeyError):
         print("Caught an error. but program continues!")
 
 
