@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+
 class GardenError(Exception):
 
     def __init__(self, message: str):
@@ -14,7 +15,7 @@ class PlantError(GardenError):
 
 class WaterError(GardenError):
 
-    def __init__(self, message: int):
+    def __init__(self, message: str):
         super().__init__(message)
 
 
@@ -32,7 +33,7 @@ class WaterTank:
     def get_max_water_level(self) -> int:
         return self.__max_water_level
 
-    def set_water_level(self, water_level: int) -> int:
+    def set_water_level(self, water_level: int) -> None:
         """
         Set the water tank's current water level after validation.
 
@@ -50,7 +51,7 @@ class WaterTank:
                 + f" (max {self.get_max_water_level()})")
         self.__water_level = water_level
 
-    def set_max_water_level(self, max_water_level: int) -> int:
+    def set_max_water_level(self, max_water_level: int) -> None:
         """
         Set the water tank's maximum water level after validation.
 
@@ -96,7 +97,7 @@ class Plant:
         name: str,
         height: float,
         age: int,
-        gowth_rate: int,
+        gowth_rate: float,
         water_height: int
     ):
         """
@@ -122,7 +123,7 @@ class Plant:
     def get_age(self) -> int:
         return self.__age
 
-    def get_growth_rate(self) -> int:
+    def get_growth_rate(self) -> float:
         return self.__growth_rate
 
     def get_water_height(self) -> int:
@@ -187,7 +188,7 @@ class Plant:
         """
         self.grow(amount)
 
-    def grow(self, amount: int = 1) -> int:
+    def grow(self, amount: int = 1) -> float:
         """
         Increase the plant's height based on its growth rate.
 
@@ -221,7 +222,7 @@ class BuggedPlant(Plant):
     """
     Bogus class to test an eventual case were an unhandled exception is raised
     """
-    def water(self, _: int):
+    def water(self, _: WaterTank, __: int = 1):
         raise Exception("Error: this plant is bugged lolol")
 
 
@@ -266,7 +267,7 @@ class GardenSecuritySystem:
             raise PlantError(f"Error: age {age} cannot be negative")
 
     @staticmethod
-    def check_growth_rate(growth_rate: float) -> bool:
+    def check_growth_rate(growth_rate: float) -> None:
         """
         Validate a plant growth rate.
 
@@ -288,7 +289,7 @@ class GardenSecuritySystem:
             )
 
     @staticmethod
-    def check_water_height(water_height: int):
+    def check_water_height(water_height: int) -> None:
         """
         Validate a plant water height.
 
@@ -328,122 +329,6 @@ class GardenSecuritySystem:
         cls.check_water_height(plant.get_water_height())
 
 
-class PlantFactory:
-    @classmethod
-    def log(self, message: str) -> None:
-        print(f"[PlantFactory] {message}")
-
-    @classmethod
-    def log_error(cls, error: Exception, message: str = "") -> None:
-        log_message = ""
-        if message is not None and message != "":
-            log_message += f"{message}\n"
-        log_message += f"{error}"
-        cls.log(log_message)
-
-    @classmethod
-    def create_plant(
-        cls,
-        name: str,
-        height: float,
-        age: int,
-        growth_rate: float,
-        water_height: int
-    ) -> Plant | None:
-        new_plant: Plant
-        try:
-            new_plant = Plant(
-                name,
-                height,
-                age,
-                growth_rate,
-                water_height
-            )
-        except PlantError as plant_error:
-            cls.log(
-                "[PlantFactory] Invalid plant creation operation"
-                + f" [REJECTED]\n{plant_error}"
-            )
-            return None
-        return new_plant
-
-    @classmethod
-    def __update_attribute(
-        cls,
-        attribute_name: str,
-        value: any,
-        setter: callable,
-        checker: callable,
-        unit: str = ""
-    ) -> bool:
-        try:
-            checker(value)
-            setter(value)
-            cls.log(f"{attribute_name} Updated: {value}{unit}")
-        except PlantError as plant_error:
-            cls.log_error(
-                message=f"Invalid operation attempted: {attribute_name} "
-                + f" {value}{unit} [REJECTED]",
-                error=plant_error
-            )
-        except Exception as err:
-            cls.log_error(
-                message="An unknown error occured when updating" +
-                f"{attribute_name}:",
-                error=err
-            )
-        return False
-
-    @classmethod
-    def update_name(cls, plant: Plant, name: str) -> bool:
-        return cls.__update_attribute(
-            "name",
-            name,
-            plant.set_name,
-            GardenSecuritySystem.check_name
-        )
-
-    @classmethod
-    def update_height(cls, plant: Plant, height: float) -> bool:
-        return cls.__update_attribute(
-            "height",
-            height,
-            plant.set_height,
-            GardenSecuritySystem.check_height,
-            "cm"
-        )
-
-    @classmethod
-    def update_age(cls, plant: Plant, age: int) -> bool:
-        return cls.__update_attribute(
-            "age",
-            age,
-            plant.set_age,
-            GardenSecuritySystem.check_age,
-            "days"
-        )
-
-    @classmethod
-    def update_growth_rate(cls, plant: Plant, growth_rate: float) -> bool:
-        return cls.__update_attribute(
-            "growth rate",
-            growth_rate,
-            plant.set_growth_rate,
-            GardenSecuritySystem.check_growth_rate,
-            "cm/day"
-        )
-
-    @classmethod
-    def update_water_height(cls, plant: Plant, water_height: int) -> bool:
-        return cls.__update_attribute(
-            "water height",
-            water_height,
-            plant.set_water_height,
-            GardenSecuritySystem.check_water_height,
-            "cm"
-        )
-
-
 class Gardener:
     __id: int
     __name: str
@@ -474,8 +359,8 @@ class Garden:
     def __init__(
             self,
             gardener: Gardener,
-            plants: list[Plant] = None,
-            water_tank: WaterTank = None
+            plants: list[Plant] | None = None,
+            water_tank: WaterTank | None = None
     ):
         self.set_gardener(gardener)
         if plants is None:
@@ -537,7 +422,7 @@ class Garden:
     def get_total_growth(self) -> int:
         return self.__total_growth
 
-    def set_total_growth(self, total_growth: int) -> None:
+    def set_total_growth(self, total_growth: float) -> None:
         """
         Set the garden's total growth value after validation.
 
@@ -613,7 +498,7 @@ class Garden:
             ValueError: If updating the total growth value fails.
             PlantError: If any plant's new height fails validation.
         """
-        total_growth = 0
+        total_growth = 0.0
 
         for plant in self.get_plants():
             total_growth += plant.grow()
@@ -669,7 +554,7 @@ class GardenManager:
     # Dict of gardens with their gardeners id as keys
     __gardens: dict[int, list[Garden]]
 
-    def __init__(self, gardens: dict[int, list[Garden]] = None):
+    def __init__(self, gardens: dict[int, list[Garden]] | None = None):
         if gardens is None:
             gardens = {}
         self.__gardens = gardens
@@ -746,7 +631,7 @@ class GardenManager:
 def main():
     print("=== Garden Management System ===")
 
-    plants_to_add = [
+    plants_to_add: list[Plant | None] = [
         Plant(
             "Oak Tree",
             564.0,
