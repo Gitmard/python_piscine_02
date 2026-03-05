@@ -9,7 +9,7 @@ def check_plant_name(name: str) -> None:
         raise ValueError("Error: Plant name cannot be empty!")
 
 
-def check_water_level(water_level: int) -> bool:
+def check_water_level(water_level: int) -> None:
     if not isinstance(water_level, int):
         raise ValueError(
             f"Error: Water level {water_level}"
@@ -26,7 +26,7 @@ def check_water_level(water_level: int) -> bool:
         )
 
 
-def check_sunlight_hours(sunlight_hours: int) -> bool:
+def check_sunlight_hours(sunlight_hours: int) -> None:
     if not isinstance(sunlight_hours, int):
         raise ValueError(
             f"Error: Sunlight hours {sunlight_hours}"
@@ -68,7 +68,7 @@ def test_plant_health(
 
 
 def main():
-    plant_name = "tomato"
+    plant_name: str | int = "tomato"
     water_level = 6
     sunlight_hours = 10
 
