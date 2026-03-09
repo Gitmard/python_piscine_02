@@ -3,10 +3,10 @@
 class Plant:
     __name: str
 
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         self.set_name(name)
 
-    def water(self):
+    def water(self) -> None:
         print(f"Watering {self.get_name()}")
 
     def get_name(self) -> str:
@@ -33,7 +33,7 @@ def water_plants(plants_list: list[Plant]) -> bool:
     return success
 
 
-def test_watering_system():
+def test_watering_system() -> None:
     good_list = [
         Plant("tomato"),
         Plant("lettuce"),
@@ -56,7 +56,7 @@ def test_watering_system():
     print("\nCleanup always happens, even with errors!")
 
 
-def main():
+def main() -> None:
     print("=== Garden Watering System ===")
     test_watering_system()
 
