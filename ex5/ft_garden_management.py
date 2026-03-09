@@ -98,7 +98,8 @@ class Plant:
         height: float,
         age: int,
         gowth_rate: float,
-        water_height: int
+        water_height: int,
+        force: bool = False
     ):
         """
         Initialize a Plant instance with validated attributes.
@@ -108,11 +109,11 @@ class Plant:
                 (invalid name, negative height, negative age, invalid growth
                 rate, or negative water height).
         """
-        self.set_name(name.capitalize())
-        self.set_height(height)
-        self.set_age(age)
-        self.set_growth_rate(gowth_rate)
-        self.set_water_height(water_height)
+        self.set_name(name.capitalize(), force=force)
+        self.set_height(height, force=force)
+        self.set_age(age, force=force)
+        self.set_growth_rate(gowth_rate, force=force)
+        self.set_water_height(water_height, force=force)
 
     def get_name(self) -> str:
         return self.__name
@@ -129,54 +130,59 @@ class Plant:
     def get_water_height(self) -> int:
         return self.__water_height
 
-    def set_name(self, name: str) -> None:
+    def set_name(self, name: str, force: bool = False) -> None:
         """
         Set the plant's name after validation.
 
         Raises:
             PlantError: If the name is not a string or is empty.
         """
-        GardenSecuritySystem.check_name(name)
+        if not force:
+            GardenSecuritySystem.check_name(name)
         self.__name = name
 
-    def set_height(self, height: float) -> None:
+    def set_height(self, height: float, force: bool = False) -> None:
         """
         Set the plant's height after validation.
 
         Raises:
             PlantError: If height is not a number or is negative.
         """
-        GardenSecuritySystem.check_height(height)
+        if not force:
+            GardenSecuritySystem.check_height(height)
         self.__height = height
 
-    def set_age(self, age: int) -> None:
+    def set_age(self, age: int, force: bool = False) -> None:
         """
         Set the plant's age after validation.
 
         Raises:
             PlantError: If age is not an integer or is negative.
         """
-        GardenSecuritySystem.check_age(age)
+        if not force:
+            GardenSecuritySystem.check_age(age)
         self.__age = age
 
-    def set_growth_rate(self, growth_rate: float) -> None:
+    def set_growth_rate(self, growth_rate: float, force: bool = False) -> None:
         """
         Set the plant's growth rate after validation.
 
         Raises:
             PlantError: If growth_rate is not a number or is negative.
         """
-        GardenSecuritySystem.check_growth_rate(growth_rate)
+        if not force:
+            GardenSecuritySystem.check_growth_rate(growth_rate)
         self.__growth_rate = growth_rate
 
-    def set_water_height(self, water_height: int) -> None:
+    def set_water_height(self, water_height: int, force: bool = False) -> None:
         """
         Set the plant's water height after validation.
 
         Raises:
             PlantError: If water_height is not an integer or is negative.
         """
-        GardenSecuritySystem.check_water_height(water_height)
+        if not force:
+            GardenSecuritySystem.check_water_height(water_height)
         self.__water_height = water_height
 
     def age(self, amount: int = 1) -> None:
@@ -222,7 +228,7 @@ class BuggedPlant(Plant):
     """
     Bogus class to test an eventual case were an unhandled exception is raised
     """
-    def water(self, _: WaterTank, __: int = 1):
+    def water(self, _: WaterTank, __: int = 1) -> None:
         raise Exception("Error: this plant is bugged lolol")
 
 
@@ -312,7 +318,7 @@ class GardenSecuritySystem:
             )
 
     @classmethod
-    def check_plant(cls, plant: Plant):
+    def check_plant(cls, plant: Plant) -> None:
         """
         Validate all attributes of a Plant instance.
 
@@ -449,7 +455,10 @@ class Garden:
             )
         self.__water_tank = water_tank
 
-    def add_plant(self, plant: Plant) -> None:
+    def add_plant(
+        self,
+        plant: Plant,
+    ) -> None:
         try:
             GardenSecuritySystem.check_plant(plant)
             self.get_plants().append(plant)
@@ -479,7 +488,7 @@ class Garden:
     def remove_plant(self, plant: Plant) -> None:
         self.get_plants().remove(plant)
 
-    def fill_water_tank(self):
+    def fill_water_tank(self) -> None:
         """
         Fill the water tank to its maximum level.
 
@@ -508,7 +517,7 @@ class Garden:
             )
         self.set_total_growth(self.get_total_growth() + total_growth)
 
-    def water_all(self):
+    def water_all(self) -> None:
         """
         Water all plants in the garden.
 
@@ -615,7 +624,6 @@ class GardenManager:
         garden.grow_all()
 
     def water_garden(self, garden: Garden) -> None:
-        self.log("Watering plants...")
         try:
             self.log("Opening water system")
             garden.water_all()
@@ -627,10 +635,18 @@ class GardenManager:
         finally:
             self.log("Closing watering system (cleanup)")
 
+    def check_plant_health(self, plant: Plant) -> None:
+        try:
+            GardenSecuritySystem.check_plant(plant)
+            print(
+                f"{plant.get_name()}: healthy (water:" +
+                f" {plant.get_water_height()})"
+            )
+        except PlantError as plant_error:
+            print(f"Error checking {plant.get_name()}", plant_error)
 
-def main():
-    print("=== Garden Management System ===")
 
+def test_garden_management() -> None:
     plants_to_add: list[Plant | None] = [
         Plant(
             "Oak Tree",
@@ -664,7 +680,7 @@ def main():
     ]
     garden_manager = GardenManager()
     gardener = Gardener(0, "Simard")
-    water_tank = WaterTank(max_water_level=8)
+    water_tank = WaterTank(water_level=8, max_water_level=8)
     garden = Garden(
         gardener=gardener,
         water_tank=water_tank
@@ -676,26 +692,12 @@ def main():
 
     print("\nWatering plants...")
     garden_manager.water_garden(garden)
-    print("\nTrying to water plants with an empty water tank...")
-    garden.get_water_tank().set_water_level(0)
-    garden_manager.water_garden(garden)
 
     print("\nChecking plant health...")
-    valid_plant: Plant
-    invalid_plant: Plant
-    try:
-        valid_plant = Plant("Tomato", 4, 5, 1, 8)
-        print(
-            f"{valid_plant.get_name()}: healthy (water:" +
-            f" {valid_plant.get_water_height()})"
-        )
-        invalid_plant = Plant("Lettuce", 4, 3, 1, 42)
-        print(
-            f"{invalid_plant.get_name()}: healthy (water:" +
-            f" {invalid_plant.get_water_height()})"
-        )
-    except PlantError as plant_error:
-        print(plant_error)
+    valid_plant = Plant("Tomato", 4, 5, 1, 8)
+    invalid_plant = Plant("Lettuce", 4, 3, 1, 42, force=True)
+    garden_manager.check_plant_health(valid_plant)
+    garden_manager.check_plant_health(invalid_plant)
 
     print("\nTesting error recovery...")
     try:
@@ -705,6 +707,11 @@ def main():
     print("System recovered and continuing...")
 
     print("\nGarden management system test complete !")
+
+
+def main() -> None:
+    print("=== Garden Management System ===")
+    test_garden_management()
 
 
 if __name__ == "__main__":
