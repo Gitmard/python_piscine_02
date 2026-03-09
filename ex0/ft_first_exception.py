@@ -1,8 +1,7 @@
 #!/usr/bin/python3
 
-def check_temperature(temp_str):
-    temp_int: int
-    print(f"\nTesting temperature: {temp_str}")
+def check_temperature(temp_str: str) -> int | None:
+    temp_int: int | None = None
     try:
         temp_int = int(temp_str)
         if 0 <= temp_int <= 40:
@@ -18,29 +17,43 @@ def check_temperature(temp_str):
                     "(max 40°C)")
     except ValueError:
         print(f"Error: {temp_str} is not a valid number")
-    except Exception:
-        print("Error: Unknown exception")
+    except Exception as err:
+        print(f"Error: Unknown exception: {err}")
+        raise err
+    return temp_int
 
 
-def main():
-    print("=== Garden Temperature Checker ===")
-    check_temperature("25")
+def test_temperature_input() -> None:
+    temp_str = "invalid"
+    print(f"\nTesting temperature: {temp_str}")
+    check_temperature(temp_str)
     print("")
-    check_temperature("abc")
+    temp_str = "-100"
+    check_temperature(temp_str)
     print("")
-    check_temperature("-100")
+    temp_str = "100"
+    check_temperature(temp_str)
     print("")
-    check_temperature("100")
+    temp_str = "25"
+    check_temperature(temp_str)
     print("")
-    check_temperature("-50")
+    temp_str = "0"
+    check_temperature(temp_str)
     print("")
-    check_temperature("0")
-    print("")
-    check_temperature("40")
+    temp_str = "40"
+    check_temperature(temp_str)
     print("")
     check_temperature("254325482435762837456283746528943576")
     print("\nAll tests completed - program didn't crash!")
 
 
+def main() -> None:
+    print("=== Garden Temperature Checker ===")
+    test_temperature_input()
+
+
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception:
+        print("An unknown error occured, exiting...")
