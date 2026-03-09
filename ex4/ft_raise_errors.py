@@ -1,15 +1,16 @@
 #!/usr/bin/python3
 
-def check_plant_name(name: str) -> None:
+def check_plant_name(name: str) -> str:
     if not isinstance(name, str):
         raise ValueError(
             f"Error: Name {name}"
             + " must be a string")
     if len(name) == 0:
         raise ValueError("Error: Plant name cannot be empty!")
+    return f"Plant name {name} is healthy!"
 
 
-def check_water_level(water_level: int) -> None:
+def check_water_level(water_level: int) -> str:
     if not isinstance(water_level, int):
         raise ValueError(
             f"Error: Water level {water_level}"
@@ -24,9 +25,10 @@ def check_water_level(water_level: int) -> None:
             f"Error: Water level {water_level}"
             + " is too high (max 10)"
         )
+    return f"Water level {water_level} is healthy!"
 
 
-def check_sunlight_hours(sunlight_hours: int) -> None:
+def check_sunlight_hours(sunlight_hours: int) -> str:
     if not isinstance(sunlight_hours, int):
         raise ValueError(
             f"Error: Sunlight hours {sunlight_hours}"
@@ -41,16 +43,18 @@ def check_sunlight_hours(sunlight_hours: int) -> None:
             f"Error: Sunlight hours {sunlight_hours}"
             + " is too high (max 12)"
         )
+    return f"Sunligh hours {sunlight_hours} is healthy!"
 
 
 def check_plant_health(
     plant_name: str,
     water_level: int,
     sunlight_hours: int
-) -> None:
+) -> str:
     check_plant_name(plant_name)
     check_water_level(water_level)
     check_sunlight_hours(sunlight_hours)
+    return f"Plant {plant_name} is healthy!"
 
 
 def test_plant_health(
@@ -59,7 +63,13 @@ def test_plant_health(
     sunlight_hours: int
 ) -> None:
     try:
-        check_plant_health(plant_name, water_level, sunlight_hours)
+        print(
+            check_plant_health(
+                plant_name,
+                water_level,
+                sunlight_hours
+            )
+        )
     except ValueError as error:
         print(error)
     except Exception as err:
@@ -67,7 +77,7 @@ def test_plant_health(
         raise err
 
 
-def main():
+def main() -> None:
     plant_name: str | int = "tomato"
     water_level = 6
     sunlight_hours = 10
